@@ -20,9 +20,6 @@ public class DataSourceConfiguration {
     @Value("${db.user}")
     private String user;
     
-    @Value("${db.password}")
-    private String password;
-    
     @Value("${db.url}")
     private String url;
     
@@ -35,7 +32,6 @@ public class DataSourceConfiguration {
         ds.setDriverClassName(driverClassName);
         ds.setUrl(url);
         ds.setUsername(user);
-        ds.setPassword(password);
         return ds;
     }
 }
