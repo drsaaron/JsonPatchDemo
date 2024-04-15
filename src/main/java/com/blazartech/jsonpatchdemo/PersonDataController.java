@@ -89,6 +89,12 @@ public class PersonDataController {
 
     @PatchMapping(path = "/person/{id}", consumes = "application/json-patch+json")
     @Operation(summary = "patch update a person")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successfully updated person",
+                content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PersonData.class))
+                })
+    })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonPatchSchema.class))))
     public PersonData updatePerson(@PathVariable long id, @RequestBody JsonPatch jsonPatch) throws JsonPatchException, JsonProcessingException {
         log.info("updating person {}", id);
