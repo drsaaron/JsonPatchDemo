@@ -4,6 +4,7 @@
  */
 package com.blazartech.jsonpatchdemo.data;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
@@ -46,11 +47,13 @@ public class PersonData {
     @Column(name = "birth_dte", nullable = false) 
     @Schema(description = "the birth date of the person")
     @NotNull
+    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate birthDate;
     
     @Column(name = "death_dte", nullable = true) 
     @Schema(description = "the death date of the person")
     @Null
+    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate deathDate;
 
     
