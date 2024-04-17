@@ -27,10 +27,13 @@ import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -125,5 +128,20 @@ public class PersonDataController {
     private PersonData applyPatchToCustomer(JsonPatch patch, PersonData targetCustomer) throws JsonPatchException, JsonProcessingException {
         JsonNode patched = patch.apply(objectMapper.convertValue(targetCustomer, JsonNode.class));
         return objectMapper.treeToValue(patched, PersonData.class);
+    }
+    
+    @PostMapping(path = "/person")
+    @Operation(summary = "add a new person")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "added person",
+                content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PersonData.class))
+                })
+    })
+    @ResponseStatus(HttpStatus.CREATED)
+    public PersonData addPerson(@RequestBody PersonData person) {
+        log.info("adding person {}", person);
+        personRepository.save(person);
+        return person;
     }
 }
