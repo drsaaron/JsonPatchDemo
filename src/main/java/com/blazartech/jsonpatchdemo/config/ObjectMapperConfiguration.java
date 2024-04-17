@@ -4,7 +4,9 @@
  */
 package com.blazartech.jsonpatchdemo.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import java.time.format.DateTimeFormatter;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,10 +17,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ObjectMapperConfiguration {
     
+    private static final String dateFormat = "yyyy-MM-dd";
+
     @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper om = new ObjectMapper();
-        om.findAndRegisterModules();
-        return om;
+    public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
+        return builder -> {
+            builder.simpleDateFormat(dateFormat);
+            builder.serializers(new LocalDateSerializer(DateTimeFormatter.ofPattern(dateFormat)));
+        };
     }
 }
