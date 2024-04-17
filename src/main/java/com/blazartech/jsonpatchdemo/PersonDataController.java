@@ -113,7 +113,7 @@ public class PersonDataController {
         log.info("updating person {}", id);
 
         PersonData person = personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
-        PersonData patchedPerson = applyPatchToCustomer(jsonPatch, person);
+        PersonData patchedPerson = applyPatchToPerson(jsonPatch, person);
         
         log.info("updated person = {}", patchedPerson);
         
@@ -125,8 +125,8 @@ public class PersonDataController {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private PersonData applyPatchToCustomer(JsonPatch patch, PersonData targetCustomer) throws JsonPatchException, JsonProcessingException {
-        JsonNode patched = patch.apply(objectMapper.convertValue(targetCustomer, JsonNode.class));
+    private PersonData applyPatchToPerson(JsonPatch patch, PersonData targetPerson) throws JsonPatchException, JsonProcessingException {
+        JsonNode patched = patch.apply(objectMapper.convertValue(targetPerson, JsonNode.class));
         return objectMapper.treeToValue(patched, PersonData.class);
     }
     
