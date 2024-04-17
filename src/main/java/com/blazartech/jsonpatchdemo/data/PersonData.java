@@ -12,6 +12,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,18 +35,22 @@ public class PersonData {
     @Basic(optional = false)
     @Column(name = "person_id")
     @Schema(description = "the ID of the person")
+    @NotNull
     private Long id;
     
     @Column(name = "name_txt", nullable = false)
     @Schema(description = "the name of the person")
+    @NotNull
     private String name;
     
     @Column(name = "birth_dte", nullable = false) 
     @Schema(description = "the birth date of the person")
+    @NotNull
     private LocalDate birthDate;
     
     @Column(name = "death_dte", nullable = true) 
     @Schema(description = "the death date of the person")
+    @Null
     private LocalDate deathDate;
 
     

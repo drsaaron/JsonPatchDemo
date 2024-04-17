@@ -13,6 +13,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -87,6 +88,15 @@ public class PersonDataController {
         return person.orElse(null);
     }
 
+    /**
+     * the main thing, the JSON patch.  Derived from https://stackoverflow.com/questions/72491333/how-to-document-json-merge-patch-endpoints-in-openapi
+     * 
+     * @param id ID of the object to be patched
+     * @param jsonPatch the patches
+     * @return patched object
+     * @throws JsonPatchException
+     * @throws JsonProcessingException 
+     */
     @PatchMapping(path = "/person/{id}", consumes = "application/json-patch+json")
     @Operation(summary = "patch update a person")
     @ApiResponses(value = {
@@ -96,7 +106,7 @@ public class PersonDataController {
                 })
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonPatchSchema.class))))
-    public PersonData updatePerson(@PathVariable long id, @RequestBody JsonPatch jsonPatch) throws JsonPatchException, JsonProcessingException {
+    public PersonData updatePerson(@Parameter(description = "id of the object to be patched") @PathVariable long id, @Parameter(description = "the patches") @RequestBody JsonPatch jsonPatch) throws JsonPatchException, JsonProcessingException {
         log.info("updating person {}", id);
 
         PersonData person = personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
