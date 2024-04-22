@@ -6,11 +6,14 @@ package com.blazartech.jsonpatchdemo.data;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
@@ -53,6 +56,8 @@ public class PersonData {
     @Null
     private LocalDate deathDate;
 
-    
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id", referencedColumnName = "address_id")
+    private AddressData address;
     
 }
