@@ -69,7 +69,7 @@ public class PersonData {
     @JoinColumn(name = "address_id", referencedColumnName = "address_id")
     private AddressData address;
     
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "roleId")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "person")
     private List<RoleData> roles;
     
 }

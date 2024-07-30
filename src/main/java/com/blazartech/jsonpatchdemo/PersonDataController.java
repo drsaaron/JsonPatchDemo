@@ -175,8 +175,8 @@ public class PersonDataController {
     public PersonView getPerson(@PathVariable long id) {
         log.info("getting person by ID {}", id);
 
-        Optional<PersonData> person = personRepository.findById(id);
-        return buildPersonView(person.orElse(null));
+        PersonData person = personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
+        return buildPersonView(person);
     }
 
     @PutMapping(path = "/person/{personId}/roles/{roleId}")
@@ -283,6 +283,7 @@ public class PersonDataController {
                 })
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonPatchSchema.class))))
+    @Transactional
     public PersonView patchPerson(@Parameter(description = "id of the object to be patched") @PathVariable long id, @Parameter(description = "the patches") @RequestBody JsonPatch jsonPatch) throws JsonPatchException, JsonProcessingException {
         log.info("updating person {}", id);
 
@@ -294,7 +295,7 @@ public class PersonDataController {
 
         log.info("updated person = {}", patchedPerson);
 
-        personRepository.save(buildPersonData(patchedPerson));
+        personRepository.saveAndFlush(buildPersonData(patchedPerson));
 
         return patchedPerson;
     }
