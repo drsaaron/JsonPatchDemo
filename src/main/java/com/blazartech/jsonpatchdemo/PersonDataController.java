@@ -71,10 +71,10 @@ public class PersonDataController {
 
     @Autowired
     private PersonDataRepository personRepository;
-    
+
     @Autowired
     private RoleDataRepository roleRepository;
-    
+
     private RoleView buildRoleView(RoleData roleData) {
         RoleView v = new RoleView();
         v.setId(roleData.getRoleId());
@@ -82,10 +82,10 @@ public class PersonDataController {
         v.setStartDate(roleData.getStartDate());
         v.setEndDate(roleData.getEndDate());
         v.setPersonId(roleData.getPerson().getId());
-        
+
         return v;
     }
-    
+
     private RoleData buildRoleData(RoleView v) {
         RoleData d = new RoleData();
         d.setEndDate(v.getEndDate());
@@ -93,10 +93,10 @@ public class PersonDataController {
         d.setRoleId(v.getId());
         d.setRoleType(v.getRoleType());
         d.setStartDate(v.getStartDate());
-        
+
         return d;
     }
-    
+
     private AddressView buildAddressView(AddressData d) {
         AddressView v = new AddressView();
         v.setId(d.getId());
@@ -104,7 +104,7 @@ public class PersonDataController {
         v.setStreetText(d.getStreetText());
         return v;
     }
-    
+
     private AddressData buildAddressData(AddressView v) {
         AddressData d = new AddressData();
         d.setId(v.getId());
@@ -112,26 +112,30 @@ public class PersonDataController {
         d.setStreetText(v.getStateText());
         return d;
     }
-    
+
     private PersonView buildPersonView(PersonData d) {
-        if (d == null) { return null; }
-        
+        if (d == null) {
+            return null;
+        }
+
         PersonView v = new PersonView();
         v.setId(d.getId());
         v.setAddress(buildAddressView(d.getAddress()));
         v.setBirthDate(d.getBirthDate());
         v.setDeathDate(d.getDeathDate());
         v.setName(d.getName());
-        
-        List<RoleView> roles = d.getRoles()
-                .stream()
-                .map(r -> buildRoleView(r))
-                .collect(Collectors.toList());
-        v.setRoles(roles);
-        
+
+        if (d.getRoles() != null) {
+            List<RoleView> roles = d.getRoles()
+                    .stream()
+                    .map(r -> buildRoleView(r))
+                    .collect(Collectors.toList());
+            v.setRoles(roles);
+        }
+
         return v;
     }
-    
+
     private PersonData buildPersonData(PersonView v) {
         PersonData d = new PersonData();
         d.setAddress(buildAddressData(v.getAddress()));
@@ -139,13 +143,13 @@ public class PersonDataController {
         d.setDeathDate(v.getDeathDate());
         d.setId(v.getId());
         d.setName(v.getName());
-        
+
         List<RoleData> roles = v.getRoles().stream()
                 .map(r -> buildRoleData(r))
                 .collect(Collectors.toList());
-        
+
         d.setRoles(roles);
-        
+
         return d;
     }
 
@@ -193,25 +197,25 @@ public class PersonDataController {
         if (role == null) {
             throw new IllegalArgumentException("no role " + roleId + " found");
         }
-        
+
         role.setEndDate(updatedRole.getEndDate());
         role.setRoleType(updatedRole.getRoleType());
         role.setStartDate(updatedRole.getStartDate());
         roleRepository.save(role);
-        
+
         return updatedRole;
     }
-    
+
     @GetMapping(path = "/roles")
     public List<RoleView> getRoles() {
         log.info("getting all roles");
-        
+
         return roleRepository.findAll()
                 .stream()
                 .map(r -> buildRoleView(r))
                 .collect(Collectors.toList());
     }
-    
+
     @PostMapping(path = "/person/{personId}/roles")
     @Operation(summary = "add a new role for a person")
     @ResponseStatus(HttpStatus.CREATED)
@@ -229,20 +233,20 @@ public class PersonDataController {
         r.setEndDate(newRole.getEndDate());
         r.setRoleType(newRole.getRoleType());
         r.setStartDate(newRole.getStartDate());
-        
+
         PersonData person = personRepository.findById(personId).orElseThrow(IllegalArgumentException::new);
-        
+
         r.setPerson(person);
 
         roleRepository.saveAndFlush(r);
 
-        person.getRoles().add(r);        
+        person.getRoles().add(r);
         personRepository.save(person);
-        
+
         newRole.setId(r.getRoleId());
         return newRole;
     }
-    
+
     @PutMapping(path = "/person/{id}")
     @Operation(summary = "update a person via PUT")
     @ApiResponses(value = {
@@ -253,13 +257,13 @@ public class PersonDataController {
     })
     public PersonView putPerson(@PathVariable long id, @RequestBody PersonView updatedPerson) {
         log.info("updating person {} via PUT", id);
-        
+
         PersonData p = personRepository.findById(id).orElseThrow();
         List<RoleData> newRoles = updatedPerson.getRoles().stream()
                 .map(r -> buildRoleData(r))
                 .collect(Collectors.toList());
         p.setRoles(newRoles);
-        
+
         personRepository.saveAndFlush(p);
         return updatedPerson;
     }
@@ -288,9 +292,9 @@ public class PersonDataController {
         log.info("updating person {}", id);
 
         PersonData person = personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
-        
+
         PersonView personView = buildPersonView(person);
-        
+
         PersonView patchedPerson = applyPatchToPerson(jsonPatch, personView);
 
         log.info("updated person = {}", patchedPerson);
@@ -319,11 +323,11 @@ public class PersonDataController {
     @ResponseStatus(HttpStatus.CREATED)
     public PersonView addPerson(@RequestBody PersonView person) {
         log.info("adding person {}", person);
-        
+
         PersonData p = buildPersonData(person);
         personRepository.save(p);
         person.setId(p.getId());
-        
+
         return person;
     }
 }

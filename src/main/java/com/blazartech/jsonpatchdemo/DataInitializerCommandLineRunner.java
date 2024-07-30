@@ -34,9 +34,7 @@ public class DataInitializerCommandLineRunner implements CommandLineRunner {
     
     @Override
     public void run(String... args) throws Exception {
-        log.info("initializing data");
-                
-        
+        log.info("initializing data");     
 
         List<PersonData> people = List.of(
                 new PersonData("Scott", LocalDate.parse("2000-01-01"), null, new AddressData(null, "circle drive", "DE")),
