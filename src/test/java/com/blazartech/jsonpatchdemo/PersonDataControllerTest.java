@@ -13,13 +13,11 @@ import com.blazartech.jsonpatchdemo.data.RoleDataRepository;
 import com.blazartech.jsonpatchdemo.response.PersonView;
 import com.blazartech.jsonpatchdemo.response.RoleView;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -34,7 +32,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.http.MediaType;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -83,15 +80,6 @@ public class PersonDataControllerTest {
             f.setPersistenceXmlLocation("classpath:META-INF/persistence.xml");
             f.setPersistenceUnitName("jsonpatch-PU");
             f.setJpaVendorAdapter(jpaVendorAdapter);
-
-            // set the hibernate.hbm2ddl.auto property.  Hibernate desperately wants to do
-            // schema changes, which is obviously not right.  I've tried setting this
-            // property in the persistence.xml file, but hibernate doesn't seem to pick 
-            // it up.  So set it here.  And set it to an invalid date so that it doesn't
-            // do a thing.
-            Properties props = new Properties();
-            props.setProperty("hibernate.hbm2ddl.auto", "none");
-            f.setJpaProperties(props);
             
             return f;
         }
@@ -169,11 +157,11 @@ public class PersonDataControllerTest {
                 .andReturn();
         
         String response = result.getResponse().getContentAsString();
-        PersonData[] persons = objectMapper.readValue(response, PersonData[].class);
+        PersonView[] persons = objectMapper.readValue(response, PersonView[].class);
         
         assertEquals(1, persons.length);
         
-        List<RoleData> roles = persons[0].getRoles();
+        List<RoleView> roles = persons[0].getRoles();
         assertNotNull(roles);
         assertEquals(1, roles.size());
     }
@@ -266,6 +254,7 @@ public class PersonDataControllerTest {
         PersonData person = personRepo.findAll().getFirst();
         Long personId = person.getId();
         
+        // update the person via patch
         MvcResult result = mockMvc
                 .perform(
                         patch("/person/" + personId)
@@ -276,19 +265,6 @@ public class PersonDataControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
         
-        String response = result.getResponse().getContentAsString();
-        PersonData updatedPerson = objectMapper.readValue(response, PersonData.class);
-        
-        assertNotNull(updatedPerson.getDeathDate());
-        assertEquals("EU", updatedPerson.getAddress().getStateText());
-        
-        List<RoleData> roles = updatedPerson.getRoles();
-        assertNotNull(roles);
-        assertEquals(2, roles.size());
-        
-        RoleData role1 = roles.get(0);
-        assertNotNull(role1.getEndDate());
-        
         // call the API for the person and make sure it's actually updated
         result = mockMvc
                 .perform(get("/person/" + personId))
@@ -296,11 +272,21 @@ public class PersonDataControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
         
-        response = result.getResponse().getContentAsString();
-        updatedPerson = objectMapper.readValue(response, PersonData.class);
+        String response = result.getResponse().getContentAsString();
+        PersonView updatedPerson = objectMapper.readValue(response, PersonView.class);
         
-        assertNotNull(updatedPerson.getRoles());
-        assertEquals(2, updatedPerson.getRoles().size());
+        // check that death and address state were updated as requested
+        assertNotNull(updatedPerson.getDeathDate());
+        assertEquals("EU", updatedPerson.getAddress().getStateText());
+        
+        // we should now have 2 roles, since we end-dated one and added a new
+        List<RoleView> roles = updatedPerson.getRoles();
+        assertNotNull(roles);
+        assertEquals(2, roles.size());
+        
+        // first role should now be end-dated
+        RoleView role1 = roles.get(0);
+        assertNotNull(role1.getEndDate());
     }
 
     /**
