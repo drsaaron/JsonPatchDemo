@@ -13,11 +13,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,6 +34,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PersonData {
+
+    public PersonData(String name, LocalDate birthDate, LocalDate deathDate, AddressData address) {
+        this.name = name;
+        this.birthDate = birthDate;
+        this.deathDate = deathDate;
+        this.address = address;
+    }
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,5 +68,8 @@ public class PersonData {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", referencedColumnName = "address_id")
     private AddressData address;
+    
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "roleId")
+    private List<RoleData> roles;
     
 }

@@ -7,6 +7,7 @@ package com.blazartech.jsonpatchdemo;
 import com.blazartech.jsonpatchdemo.data.AddressData;
 import com.blazartech.jsonpatchdemo.data.PersonData;
 import com.blazartech.jsonpatchdemo.data.PersonDataRepository;
+import com.blazartech.jsonpatchdemo.data.RoleData;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -25,17 +26,28 @@ public class DataInitializerCommandLineRunner implements CommandLineRunner {
     @Autowired
     private PersonDataRepository personRepository;
     
+    private PersonData addRoles(PersonData person) {
+        List<RoleData> simpleRoles = List.of(new RoleData(null, RoleData.RoleType.Manager, LocalDate.parse("2024-01-01"), null, person));
+        person.setRoles(simpleRoles);
+        return person;
+    }
+    
     @Override
     public void run(String... args) throws Exception {
         log.info("initializing data");
                 
+        
+
         List<PersonData> people = List.of(
-                new PersonData(null, "Scott", LocalDate.parse("2000-01-01"), null, new AddressData(null, "circle drive", "DE")),
-                new PersonData(null, "Henry", LocalDate.parse("1480-10-01"), null, new AddressData(null, "palace", "UK")),
-                new PersonData(null, "Lancelot", LocalDate.parse("1210-06-20"), null, new AddressData(null, "camelot", "UK"))
+                new PersonData("Scott", LocalDate.parse("2000-01-01"), null, new AddressData(null, "circle drive", "DE")),
+                new PersonData("Henry", LocalDate.parse("1480-10-01"), null, new AddressData(null, "palace", "UK")),
+                new PersonData("Lancelot", LocalDate.parse("1210-06-20"), null, new AddressData(null, "camelot", "UK"))
         );
         
-        people.forEach(p -> personRepository.save(p));
+        people.stream()
+                .map(p -> personRepository.save(p))
+                .map(p -> addRoles(p))
+                .forEach(p -> personRepository.save(p));
         
     }
     
