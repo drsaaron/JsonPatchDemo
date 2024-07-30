@@ -43,6 +43,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -60,19 +61,19 @@ import org.springframework.transaction.PlatformTransactionManager;
 })
 @Transactional
 public class PersonDataControllerTest {
-    
+
     @Configuration
     @EnableJpaRepositories(basePackages = {"com.blazartech.jsonpatchdemo.data"})
     public static class PersonDataControllerTestConfiguration {
-        
+
         @Autowired
         private DataSource dataSource;
-        
+
         @Bean
         public PersonDataController instance() {
             return new PersonDataController();
         }
-        
+
         @Bean
         public LocalContainerEntityManagerFactoryBean entityManagerFactory(JpaVendorAdapter jpaVendorAdapter) {
             LocalContainerEntityManagerFactoryBean f = new LocalContainerEntityManagerFactoryBean();
@@ -80,10 +81,10 @@ public class PersonDataControllerTest {
             f.setPersistenceXmlLocation("classpath:META-INF/persistence.xml");
             f.setPersistenceUnitName("jsonpatch-PU");
             f.setJpaVendorAdapter(jpaVendorAdapter);
-            
+
             return f;
         }
-        
+
         @Bean
         public JpaVendorAdapter jpaVendorAdapter() {
             HibernateJpaVendorAdapter va  = new HibernateJpaVendorAdapter();
@@ -92,54 +93,54 @@ public class PersonDataControllerTest {
             va.setGenerateDdl(true);
             return va;
         }
-        
+
         @Bean
         public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
             JpaTransactionManager m = new JpaTransactionManager(emf);
             return m;
         }
     }
-    
+
     @Autowired
     private MockMvc mockMvc;
-    
+
     @Autowired
     private PersonDataController instance;
-    
+
     @Autowired
     private PersonDataRepository personRepo;
-    
+
     @Autowired
     private RoleDataRepository roleRepo;
-    
+
     public PersonDataControllerTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
-        
+
         PersonData person1 = new PersonData("PERSON1", LocalDate.parse("1960-10-01"), null, new AddressData(null, "stree1", "state1"));
         personRepo.save(person1);
-        
+
         RoleData role1 = new RoleData(null, RoleData.RoleType.Sales, LocalDate.parse("1980-12-01"), null, person1);
         ArrayList<RoleData> roles = new ArrayList<>();
         roles.add(role1);
         person1.setRoles(roles);
         personRepo.save(person1);
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
-    
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -149,18 +150,18 @@ public class PersonDataControllerTest {
     @Test
     public void testGetPersons() throws Exception {
         log.info("getPersons");
-        
+
         MvcResult result = mockMvc
                 .perform(get("/person"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
-        
+
         String response = result.getResponse().getContentAsString();
         PersonView[] persons = objectMapper.readValue(response, PersonView[].class);
-        
+
         assertEquals(1, persons.length);
-        
+
         List<RoleView> roles = persons[0].getRoles();
         assertNotNull(roles);
         assertEquals(1, roles.size());
@@ -228,20 +229,60 @@ public class PersonDataControllerTest {
         fail("The test case is a prototype.");
     }
 
+    private PersonView getPerson(long personId) throws Exception {
+        MvcResult result = mockMvc
+                .perform(get("/person/" + personId))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        log.info("person response = {}", response);
+        PersonView origPerson = objectMapper.readValue(response, PersonView.class);
+        
+        return origPerson;
+    }
+    
     /**
      * Test of putPerson method, of class PersonDataController.
      */
-    //   @Test
-    public void testPutPerson() {
-        System.out.println("putPerson");
-        long id = 0L;
-        PersonView updatedPerson = null;
-        PersonDataController instance = new PersonDataController();
-        PersonView expResult = null;
-        PersonView result = instance.putPerson(id, updatedPerson);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+   // @Test
+    public void testPutPerson() throws Exception {
+        log.info("putPerson");
+
+        PersonData person = personRepo.findAll().getFirst();
+        Long personId = person.getId();
+
+        // get the current state
+        PersonView origPerson = getPerson(personId);
+
+        // end-date current roles and add new one.
+        RoleView role1 = origPerson.getRoles().getFirst();
+        role1.setEndDate(LocalDate.parse("2025-12-31"));
+
+        RoleView role2 = new RoleView(null, RoleData.RoleType.Staff, LocalDate.parse("2026-01-01"), null, personId);
+        origPerson.getRoles().add(role2);
+
+        String jsonString = objectMapper.writeValueAsString(origPerson);
+        log.info("jsonString = {}", jsonString);
+
+        // update via put
+        mockMvc
+                .perform(
+                        put("/person/" + personId)
+                                .contentType("application/json")
+                                .content(jsonString)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Now retrieve the person via API
+        PersonView updatedPerson = getPerson(personId);
+
+        // should now have two roles
+        List<RoleView> roles = updatedPerson.getRoles();
+        assertEquals(2, roles.size());
     }
 
     /**
@@ -250,12 +291,12 @@ public class PersonDataControllerTest {
     @Test
     public void testPatchPerson() throws Exception {
         log.info("patchPerson");
-        
+
         PersonData person = personRepo.findAll().getFirst();
         Long personId = person.getId();
-        
+
         // update the person via patch
-        MvcResult result = mockMvc
+        mockMvc
                 .perform(
                         patch("/person/" + personId)
                                 .contentType("application/json-patch+json")
@@ -264,26 +305,19 @@ public class PersonDataControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
-        
+
         // call the API for the person and make sure it's actually updated
-        result = mockMvc
-                .perform(get("/person/" + personId))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
-        
-        String response = result.getResponse().getContentAsString();
-        PersonView updatedPerson = objectMapper.readValue(response, PersonView.class);
-        
+        PersonView updatedPerson = getPerson(personId);
+
         // check that death and address state were updated as requested
         assertNotNull(updatedPerson.getDeathDate());
         assertEquals("EU", updatedPerson.getAddress().getStateText());
-        
+
         // we should now have 2 roles, since we end-dated one and added a new
         List<RoleView> roles = updatedPerson.getRoles();
         assertNotNull(roles);
         assertEquals(2, roles.size());
-        
+
         // first role should now be end-dated
         RoleView role1 = roles.get(0);
         assertNotNull(role1.getEndDate());
@@ -303,5 +337,5 @@ public class PersonDataControllerTest {
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
-    
+
 }
