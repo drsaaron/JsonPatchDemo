@@ -32,6 +32,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.http.MediaType;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -246,7 +247,7 @@ public class PersonDataControllerTest {
     /**
      * Test of putPerson method, of class PersonDataController.
      */
-   // @Test
+    @Test
     public void testPutPerson() throws Exception {
         log.info("putPerson");
 
@@ -270,7 +271,7 @@ public class PersonDataControllerTest {
         mockMvc
                 .perform(
                         put("/person/" + personId)
-                                .contentType("application/json")
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonString)
                 )
                 .andDo(print())

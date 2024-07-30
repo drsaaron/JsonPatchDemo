@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -33,6 +34,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = { "roles" }) // exclude roles as person references role which references person which references ...
 public class PersonData {
 
     public PersonData(String name, LocalDate birthDate, LocalDate deathDate, AddressData address) {
