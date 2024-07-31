@@ -186,15 +186,15 @@ public class PersonDataController {
         return buildPersonView(person);
     }
 
-    @PutMapping(path = "/person/{personId}/roles/{roleId}")
-    @Operation(summary = "update via PUT a role for a person")
+    @PutMapping(path = "/roles/{roleId}")
+    @Operation(summary = "update via PUT a role")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "updated role",
                 content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = RoleView.class))
                 })
     })
-    public RoleView putRole(@PathVariable long personId, @PathVariable long roleId, @RequestBody RoleView updatedRole) {
+    public RoleView putRole(@PathVariable long roleId, @RequestBody RoleView updatedRole) {
         log.info("getting role by ID {}", roleId);
 
         RoleData role = roleRepository.findById(roleId).orElseThrow(() -> new IllegalArgumentException("no role " + roleId + " found"));
@@ -208,6 +208,13 @@ public class PersonDataController {
     }
 
     @GetMapping(path = "/roles")
+    @Operation(summary = "get a list of all roles")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "list of roles",
+                content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RoleView.class)))
+                })
+    })
     public List<RoleView> getRoles() {
         log.info("getting all roles");
 
@@ -217,8 +224,8 @@ public class PersonDataController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping(path = "/person/{personId}/roles")
-    @Operation(summary = "add a new role for a person")
+    @PostMapping(path = "/roles")
+    @Operation(summary = "add a new role")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "created role",
@@ -227,22 +234,19 @@ public class PersonDataController {
                 })
     })
     @Transactional
-    public RoleView postRole(@PathVariable long personId, @RequestBody RoleView newRole) {
-        log.info("adding new role {} to person ID {}", newRole, personId);
+    public RoleView postRole(@RequestBody RoleView newRole) {
+        log.info("adding new role {} ", newRole);
 
         RoleData r = new RoleData();
         r.setEndDate(newRole.getEndDate());
         r.setRoleType(newRole.getRoleType());
         r.setStartDate(newRole.getStartDate());
 
-        PersonData person = personRepository.findById(personId).orElseThrow(IllegalArgumentException::new);
+        PersonData person = personRepository.findById(newRole.getPersonId()).orElseThrow(IllegalArgumentException::new);
 
         r.setPerson(person);
 
         roleRepository.saveAndFlush(r);
-
-        person.getRoles().add(r);
-        personRepository.save(person);
 
         newRole.setId(r.getRoleId());
         return newRole;

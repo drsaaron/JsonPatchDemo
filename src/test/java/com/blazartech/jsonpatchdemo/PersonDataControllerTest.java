@@ -193,16 +193,7 @@ public class PersonDataControllerTest {
      */
     //   @Test
     public void testPutRole() {
-        System.out.println("putRole");
-        long personId = 0L;
-        long roleId = 0L;
-        RoleView updatedRole = null;
-        PersonDataController instance = new PersonDataController();
-        RoleView expResult = null;
-        RoleView result = instance.putRole(personId, roleId, updatedRole);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
@@ -224,15 +215,7 @@ public class PersonDataControllerTest {
      */
     //  @Test
     public void testPostRole() {
-        System.out.println("postRole");
-        long personId = 0L;
-        RoleView newRole = null;
-        PersonDataController instance = new PersonDataController();
-        RoleView expResult = null;
-        RoleView result = instance.postRole(personId, newRole);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     private PersonView getPerson(long personId) throws Exception {
