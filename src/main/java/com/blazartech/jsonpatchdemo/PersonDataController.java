@@ -197,10 +197,7 @@ public class PersonDataController {
     public RoleView putRole(@PathVariable long personId, @PathVariable long roleId, @RequestBody RoleView updatedRole) {
         log.info("getting role by ID {}", roleId);
 
-        RoleData role = roleRepository.findById(roleId).orElse(null);
-        if (role == null) {
-            throw new IllegalArgumentException("no role " + roleId + " found");
-        }
+        RoleData role = roleRepository.findById(roleId).orElseThrow(() -> new IllegalArgumentException("no role " + roleId + " found"));
 
         role.setEndDate(updatedRole.getEndDate());
         role.setRoleType(updatedRole.getRoleType());
