@@ -133,12 +133,12 @@ public class PersonDataControllerTest {
     public void setUp() {
 
         PersonData person1 = new PersonData("PERSON1", LocalDate.parse("1960-10-01"), null, new AddressData(null, "stree1", "state1"));
-        personRepo.save(person1);
 
         RoleData role1 = new RoleData(null, RoleData.RoleType.Sales, LocalDate.parse("1980-12-01"), null, person1);
         ArrayList<RoleData> roles = new ArrayList<>();
         roles.add(role1);
         person1.setRoles(roles);
+        
         personRepo.save(person1);
     }
 

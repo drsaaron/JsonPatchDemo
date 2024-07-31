@@ -45,7 +45,6 @@ public class DataInitializerCommandLineRunner implements CommandLineRunner {
         );
         
         people.stream()
-                .map(p -> personRepository.save(p))
                 .map(p -> addRoles(p))
                 .forEach(p -> personRepository.save(p));
         
