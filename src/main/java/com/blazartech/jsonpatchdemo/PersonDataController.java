@@ -106,11 +106,15 @@ public class PersonDataController {
     }
 
     private AddressData buildAddressData(AddressView v) {
-        AddressData d = new AddressData();
-        d.setId(v.getId());
-        d.setStateText(v.getStateText());
-        d.setStreetText(v.getStateText());
-        return d;
+        if (v != null) {
+            AddressData d = new AddressData();
+            d.setId(v.getId());
+            d.setStateText(v.getStateText());
+            d.setStreetText(v.getStateText());
+            return d;
+        } else {
+            return null;
+        }
     }
 
     private PersonView buildPersonView(PersonData d) {
