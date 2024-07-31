@@ -11,7 +11,7 @@ curl -X POST -H "Content-Type: application/json" $urlRoot/person -d '{ "name": "
 
 echo
 echo "killing off person #2 while also adding a second role"
-curl -X PATCH -H "Content-Type: application/json-patch+json" $urlRoot/person/2 -d '[ { "op": "replace", "path": "/deathDate", "value": "1600-02-15" }, { "op": "replace", "path": "/address/stateText", "value": "EU" }, {    "op": "replace",    "path": "/roles/0/endDate",    "value": "2024-12-31"  },  {     "op": "add",    "path": "/roles/-",    "value": { "roleType": "Staff", "startDate": "2025-01-01", "personId": 2 }  } ]'
+curl -X PATCH -H "Content-Type: application/json-patch+json" $urlRoot/person/2 -d @patch.json
 
 echo
 echo "getting all people again"
