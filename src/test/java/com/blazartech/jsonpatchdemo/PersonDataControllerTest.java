@@ -171,16 +171,17 @@ public class PersonDataControllerTest {
     /**
      * Test of getPerson method, of class PersonDataController.
      */
-    //  @Test
-    public void testGetPerson() {
-        System.out.println("getPerson");
-        long id = 0L;
-        PersonDataController instance = new PersonDataController();
-        PersonView expResult = null;
-        PersonView result = instance.getPerson(id);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    @Test
+    public void testGetPerson() throws Exception {
+        log.info("getPerson");
+        
+        PersonData person = personRepo.findAll().getFirst();
+        Long personId = person.getId();
+        
+        PersonView pv = getPerson(personId);
+        assertNotNull(pv);
+        assertEquals("PERSON1", pv.getName());
+        assertEquals(1, pv.getRoles().size());        
     }
 
     /**
