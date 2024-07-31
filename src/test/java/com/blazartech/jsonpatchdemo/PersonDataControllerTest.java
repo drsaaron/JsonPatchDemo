@@ -10,6 +10,7 @@ import com.blazartech.jsonpatchdemo.data.PersonData;
 import com.blazartech.jsonpatchdemo.data.PersonDataRepository;
 import com.blazartech.jsonpatchdemo.data.RoleData;
 import com.blazartech.jsonpatchdemo.data.RoleDataRepository;
+import com.blazartech.jsonpatchdemo.response.AddressView;
 import com.blazartech.jsonpatchdemo.response.PersonView;
 import com.blazartech.jsonpatchdemo.response.RoleView;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,6 +48,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -315,16 +317,47 @@ public class PersonDataControllerTest {
     /**
      * Test of addPerson method, of class PersonDataController.
      */
-    //  @Test
-    public void testAddPerson() {
-        System.out.println("addPerson");
-        PersonView person = null;
-        PersonDataController instance = new PersonDataController();
-        PersonView expResult = null;
-        PersonView result = instance.addPerson(person);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    @Test
+    public void testAddPerson() throws Exception {
+        log.info("addPerson");
+        
+        AddressView newAddress = new AddressView();
+        newAddress.setStateText("DE");
+        newAddress.setStreetText("high");
+        
+        PersonView newPerson = new PersonView();
+        newPerson.setBirthDate(LocalDate.parse("1960-12-10"));
+        newPerson.setName("PERSON2");
+        newPerson.setAddress(newAddress);
+        
+        String jsonString = objectMapper.writeValueAsString(newPerson);
+        
+        MvcResult result = mockMvc
+                .perform(
+                        post("/person")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonString)
+                )
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn();
+        
+        String response = result.getResponse().getContentAsString();
+        PersonView person = objectMapper.readValue(response, PersonView.class);
+        
+        assertNotNull(person.getId());
+        
+        // there should now be two
+        result = mockMvc
+                .perform(get("/person"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        response = result.getResponse().getContentAsString();
+        PersonView[] persons = objectMapper.readValue(response, PersonView[].class);
+
+        assertEquals(2, persons.length);
     }
 
 }

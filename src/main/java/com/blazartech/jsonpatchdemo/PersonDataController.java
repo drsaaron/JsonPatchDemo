@@ -148,12 +148,14 @@ public class PersonDataController {
         d.setId(v.getId());
         d.setName(v.getName());
 
-        List<RoleData> roles = v.getRoles().stream()
-                .map(r -> buildRoleData(r))
-                .collect(Collectors.toList());
+        if (v.getRoles() != null) {
+            List<RoleData> roles = v.getRoles().stream()
+                    .map(r -> buildRoleData(r))
+                    .collect(Collectors.toList());
 
-        d.setRoles(roles);
-
+            d.setRoles(roles);
+        }
+        
         return d;
     }
 
@@ -263,7 +265,7 @@ public class PersonDataController {
     public PersonView putPerson(@PathVariable long id, @RequestBody PersonView updatedPerson) {
         log.info("updating person {} via PUT", id);
 
-        PersonData p = personRepository.findById(id).orElseThrow();
+        PersonData p = personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
         List<RoleData> newRoles = updatedPerson.getRoles().stream()
                 .map(r -> buildRoleData(r))
                 .collect(Collectors.toList());
