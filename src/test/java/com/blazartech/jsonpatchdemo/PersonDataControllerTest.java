@@ -9,7 +9,6 @@ import com.blazartech.jsonpatchdemo.data.AddressData;
 import com.blazartech.jsonpatchdemo.data.PersonData;
 import com.blazartech.jsonpatchdemo.data.PersonDataRepository;
 import com.blazartech.jsonpatchdemo.data.RoleData;
-import com.blazartech.jsonpatchdemo.data.RoleDataRepository;
 import com.blazartech.jsonpatchdemo.response.AddressView;
 import com.blazartech.jsonpatchdemo.response.PersonView;
 import com.blazartech.jsonpatchdemo.response.RoleView;
@@ -112,13 +111,7 @@ public class PersonDataControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private PersonDataController instance;
-
-    @Autowired
     private PersonDataRepository personRepo;
-
-    @Autowired
-    private RoleDataRepository roleRepo;
 
     public PersonDataControllerTest() {
     }
@@ -153,6 +146,7 @@ public class PersonDataControllerTest {
 
     /**
      * Test of getPersons method, of class PersonDataController.
+     * @throws java.lang.Exception
      */
     @Test
     public void testGetPersons() throws Exception {
@@ -176,6 +170,7 @@ public class PersonDataControllerTest {
 
     /**
      * Test of getPerson method, of class PersonDataController.
+     * @throws java.lang.Exception
      */
     @Test
     public void testGetPerson() throws Exception {
@@ -203,13 +198,7 @@ public class PersonDataControllerTest {
      */
     //  @Test
     public void testGetRoles() {
-        System.out.println("getRoles");
-        PersonDataController instance = new PersonDataController();
-        List<RoleView> expResult = null;
-        List<RoleView> result = instance.getRoles();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
@@ -236,6 +225,7 @@ public class PersonDataControllerTest {
     
     /**
      * Test of putPerson method, of class PersonDataController.
+     * @throws java.lang.Exception
      */
     @Test
     public void testPutPerson() throws Exception {
@@ -278,6 +268,7 @@ public class PersonDataControllerTest {
 
     /**
      * Test of patchPerson method, of class PersonDataController.
+     * @throws java.lang.Exception
      */
     @Test
     public void testPatchPerson() throws Exception {
@@ -316,6 +307,7 @@ public class PersonDataControllerTest {
 
     /**
      * Test of addPerson method, of class PersonDataController.
+     * @throws java.lang.Exception
      */
     @Test
     public void testAddPerson() throws Exception {
