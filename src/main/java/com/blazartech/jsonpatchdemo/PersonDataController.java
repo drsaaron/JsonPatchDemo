@@ -98,6 +98,10 @@ public class PersonDataController {
     }
 
     private AddressView buildAddressView(AddressData d) {
+        if (d == null) {
+            return null;
+        }
+        
         AddressView v = new AddressView();
         v.setId(d.getId());
         v.setStateText(d.getStateText());
