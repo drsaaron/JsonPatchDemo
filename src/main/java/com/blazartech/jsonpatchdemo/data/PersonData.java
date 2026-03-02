@@ -49,7 +49,7 @@ public class PersonData {
     @Basic(optional = false)
     @Column(name = "person_id")
     @Schema(description = "the ID of the person")
-    @NotNull
+  //  @NotNull
     private Long id;
     
     @Column(name = "name_txt", nullable = false)

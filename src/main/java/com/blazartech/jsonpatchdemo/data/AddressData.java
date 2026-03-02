@@ -33,7 +33,7 @@ public class AddressData {
     @Basic(optional = false)
     @Column(name = "address_id")
     @Schema(description = "the ID of the address")
-    @NotNull
+ //   @NotNull
     private Long id; 
     
     @Column(name = "street_txt", nullable = false)
@@ -45,4 +45,6 @@ public class AddressData {
     @Schema(description = "the state part of the address")
     @NotNull
     private String stateText;
+    
+    
 }

@@ -13,6 +13,7 @@ import com.blazartech.jsonpatchdemo.response.AddressView;
 import com.blazartech.jsonpatchdemo.response.PersonView;
 import com.blazartech.jsonpatchdemo.response.RoleView;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
@@ -28,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -105,6 +106,13 @@ public class PersonDataControllerTest {
             JpaTransactionManager m = new JpaTransactionManager(emf);
             return m;
         }
+
+        @Bean
+        public ObjectMapper objectMapper() {
+            ObjectMapper om = new ObjectMapper();
+            om.registerModule(new JavaTimeModule());
+            return om;
+        }
     }
 
     @Autowired
@@ -133,7 +141,7 @@ public class PersonDataControllerTest {
         ArrayList<RoleData> roles = new ArrayList<>();
         roles.add(role1);
         person1.setRoles(roles);
-        
+
         personRepo.save(person1);
     }
 
@@ -146,6 +154,7 @@ public class PersonDataControllerTest {
 
     /**
      * Test of getPersons method, of class PersonDataController.
+     *
      * @throws java.lang.Exception
      */
     @Test
@@ -170,19 +179,20 @@ public class PersonDataControllerTest {
 
     /**
      * Test of getPerson method, of class PersonDataController.
+     *
      * @throws java.lang.Exception
      */
     @Test
     public void testGetPerson() throws Exception {
         log.info("getPerson");
-        
+
         PersonData person = personRepo.findAll().getFirst();
         Long personId = person.getId();
-        
+
         PersonView pv = getPerson(personId);
         assertNotNull(pv);
         assertEquals("PERSON1", pv.getName());
-        assertEquals(1, pv.getRoles().size());        
+        assertEquals(1, pv.getRoles().size());
     }
 
     /**
@@ -219,12 +229,13 @@ public class PersonDataControllerTest {
         String response = result.getResponse().getContentAsString();
         log.info("person response = {}", response);
         PersonView origPerson = objectMapper.readValue(response, PersonView.class);
-        
+
         return origPerson;
     }
-    
+
     /**
      * Test of putPerson method, of class PersonDataController.
+     *
      * @throws java.lang.Exception
      */
     @Test
@@ -268,6 +279,7 @@ public class PersonDataControllerTest {
 
     /**
      * Test of patchPerson method, of class PersonDataController.
+     *
      * @throws java.lang.Exception
      */
     @Test
@@ -307,23 +319,24 @@ public class PersonDataControllerTest {
 
     /**
      * Test of addPerson method, of class PersonDataController.
+     *
      * @throws java.lang.Exception
      */
     @Test
     public void testAddPerson() throws Exception {
         log.info("addPerson");
-        
+
         AddressView newAddress = new AddressView();
         newAddress.setStateText("DE");
         newAddress.setStreetText("high");
-        
+
         PersonView newPerson = new PersonView();
         newPerson.setBirthDate(LocalDate.parse("1960-12-10"));
         newPerson.setName("PERSON2");
         newPerson.setAddress(newAddress);
-        
+
         String jsonString = objectMapper.writeValueAsString(newPerson);
-        
+
         MvcResult result = mockMvc
                 .perform(
                         post("/person")
@@ -333,12 +346,12 @@ public class PersonDataControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andReturn();
-        
+
         String response = result.getResponse().getContentAsString();
         PersonView person = objectMapper.readValue(response, PersonView.class);
-        
+
         assertNotNull(person.getId());
-        
+
         // there should now be two
         result = mockMvc
                 .perform(get("/person"))

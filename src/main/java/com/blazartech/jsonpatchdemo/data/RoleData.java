@@ -4,7 +4,6 @@
  */
 package com.blazartech.jsonpatchdemo.data;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
@@ -40,7 +39,7 @@ public class RoleData {
     @Basic(optional = false)
     @Column(name = "role_id")
     @Schema(description = "the ID of the role")
-    @NotNull
+//    @NotNull
     private Long roleId; 
     
     @Column(name = "role_type", nullable = false)
