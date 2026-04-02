@@ -13,7 +13,6 @@ import com.blazartech.jsonpatchdemo.response.AddressView;
 import com.blazartech.jsonpatchdemo.response.PersonView;
 import com.blazartech.jsonpatchdemo.response.RoleView;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.flipkart.zjsonpatch.Jackson3JsonPatch;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,6 +25,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonPatch;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +43,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
@@ -297,7 +299,7 @@ public class PersonDataController {
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonPatchSchema.class))))
     @Transactional
-    public PersonView patchPerson(@Parameter(description = "id of the object to be patched") @PathVariable long id, @Parameter(description = "the patches") @RequestBody JsonNode jsonPatch) throws JsonProcessingException {
+    public PersonView patchPerson(@Parameter(description = "id of the object to be patched") @PathVariable long id, @Parameter(description = "the patches") @RequestBody JsonArray jsonPatch) throws JsonProcessingException {
         log.info("updating person {} by patch", id);
 
         PersonData person = personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
@@ -316,9 +318,13 @@ public class PersonDataController {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private PersonView applyPatchToPerson(JsonNode patch, PersonView targetPerson) throws JsonProcessingException {
-        JsonNode patched = Jackson3JsonPatch.apply(patch, objectMapper.convertValue(targetPerson, JsonNode.class));
-        return objectMapper.treeToValue(patched, PersonView.class);
+    private PersonView applyPatchToPerson(JsonArray patch, PersonView targetPerson) throws JsonProcessingException {
+        JsonPatch jsonPatch = Json.createPatch(patch);
+        JsonObject personNode = objectMapper.convertValue(targetPerson, JsonObject.class);
+        JsonObject patchedPerson = jsonPatch.apply(personNode);
+        log.info("patched = {}", patchedPerson);
+
+        return objectMapper.readValue(patchedPerson.toString(), PersonView.class);
     }
 
     @PostMapping(path = "/person")
