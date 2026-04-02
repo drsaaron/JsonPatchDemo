@@ -294,7 +294,7 @@ public class PersonDataControllerTest {
                 .perform(
                         patch("/person/" + personId)
                                 .contentType("application/json-patch+json")
-                                .content("[ { \"op\": \"replace\", \"path\": \"/deathDate\", \"value\": \"1600-02-15\" }, { \"op\": \"replace\", \"path\": \"/address/stateText\", \"value\": \"EU\" }, {    \"op\": \"replace\",    \"path\": \"/roles/0/endDate\",    \"value\": \"2024-12-31\"  },  {     \"op\": \"add\",    \"path\": \"/roles/-\",    \"value\": { \"roleType\": \"Staff\", \"startDate\": \"2025-01-01\", \"personId\": 2 }  } ]")
+                                .content("[ { \"op\": \"replace\", \"path\": \"/deathDate\", \"value\": \"1600-02-15\" }, { \"op\": \"replace\", \"path\": \"/address/stateText\", \"value\": \"EU\" }, {    \"op\": \"replace\",    \"path\": \"/roles/0/endDate\",    \"value\": \"2024-12-31\"  },  {     \"op\": \"add\",    \"path\": \"/roles/-\",    \"value\": { \"roleType\": \"Staff\", \"startDate\": \"2025-01-01\", \"personId\": " + personId + "}  } ]")
                 )
                 .andDo(print())
                 .andExpect(status().isOk())

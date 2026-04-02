@@ -13,10 +13,7 @@ import com.blazartech.jsonpatchdemo.response.AddressView;
 import com.blazartech.jsonpatchdemo.response.PersonView;
 import com.blazartech.jsonpatchdemo.response.RoleView;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
+import com.flipkart.zjsonpatch.Jackson3JsonPatch;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -43,6 +40,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  *
@@ -286,7 +285,6 @@ public class PersonDataController {
      * @param id ID of the object to be patched
      * @param jsonPatch the patches
      * @return patched object
-     * @throws JsonPatchException
      * @throws JsonProcessingException
      */
     @PatchMapping(path = "/person/{id}", consumes = "application/json-patch+json")
@@ -299,8 +297,8 @@ public class PersonDataController {
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonPatchSchema.class))))
     @Transactional
-    public PersonView patchPerson(@Parameter(description = "id of the object to be patched") @PathVariable long id, @Parameter(description = "the patches") @RequestBody JsonPatch jsonPatch) throws JsonPatchException, JsonProcessingException {
-        log.info("updating person {}", id);
+    public PersonView patchPerson(@Parameter(description = "id of the object to be patched") @PathVariable long id, @Parameter(description = "the patches") @RequestBody JsonNode jsonPatch) throws JsonProcessingException {
+        log.info("updating person {} by patch", id);
 
         PersonData person = personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
 
@@ -318,8 +316,8 @@ public class PersonDataController {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private PersonView applyPatchToPerson(JsonPatch patch, PersonView targetPerson) throws JsonPatchException, JsonProcessingException {
-        JsonNode patched = patch.apply(objectMapper.convertValue(targetPerson, JsonNode.class));
+    private PersonView applyPatchToPerson(JsonNode patch, PersonView targetPerson) throws JsonProcessingException {
+        JsonNode patched = Jackson3JsonPatch.apply(patch, objectMapper.convertValue(targetPerson, JsonNode.class));
         return objectMapper.treeToValue(patched, PersonView.class);
     }
 

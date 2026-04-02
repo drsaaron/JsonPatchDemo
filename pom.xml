@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.blazartech</groupId>
     <artifactId>JsonPatchDemo</artifactId>
-    <version>1.20-SNAPSHOT</version>
+    <version>1.21-SNAPSHOT</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.3</version>
+        <version>4.0.5</version>
     </parent>
     
     <dependencies>
@@ -52,14 +52,13 @@
         </dependency>
         
         <dependency>
-            <groupId>com.github.java-json-tools</groupId>
-            <artifactId>json-patch</artifactId>
-            <version>1.13</version>
+            <groupId>io.github.vishwakarma</groupId>
+            <artifactId>zjsonpatch</artifactId>
+            <version>0.6.2</version>
         </dependency>
-        
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
 
         <dependency>
@@ -113,7 +112,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.1</version>
+                <version>3.15.0</version>
                 <configuration>
                     <compilerArgs>
                         <arg>-Xlint:unchecked</arg>

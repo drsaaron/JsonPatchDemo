@@ -64,7 +64,7 @@ public class PersonData {
     
     @Column(name = "death_dte", nullable = true) 
     @Schema(description = "the death date of the person")
-    @Null
+//    @Null
     private LocalDate deathDate;
 
     @OneToOne(cascade = CascadeType.ALL)

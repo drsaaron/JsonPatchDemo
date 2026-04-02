@@ -53,8 +53,8 @@ public class RoleData {
     private LocalDate startDate;
     
     @Column(name = "end_dte", nullable = true) 
-    @Schema(description = "ebd date of the role")
-    @Null
+    @Schema(description = "end date of the role")
+//    @Null
     private LocalDate endDate;
 
 /*    @Column(name = "person_id", nullable = false) 
