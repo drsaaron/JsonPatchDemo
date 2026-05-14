@@ -24,5 +24,6 @@ public class JsonPatchSchema {
     public String path;
 
     @NotBlank
-    public String value; // TODO: can this be an object rather than string?
+    @Schema(description = "the value to patch in.  For an object, this would be the json representation of the object.  For a native type, it's just the value")
+    public Object value; 
 }

@@ -301,9 +301,9 @@ public class PersonDataController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = PersonView.class))
                 })
     })
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonPatchSchema.class))))
+//    @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonPatchSchema.class))))
     @Transactional
-    public PersonView patchPerson(@Parameter(description = "id of the object to be patched") @PathVariable long id, @Parameter(description = "the patches") @RequestBody List<JsonPatchOperation> jsonPatch) throws JsonProcessingException {
+    public PersonView patchPerson(@Parameter(description = "id of the object to be patched") @PathVariable long id, @Parameter(description = "the patches") @RequestBody List<JsonPatchSchema> jsonPatch) throws JsonProcessingException {
         log.info("updating person {} by patch", id);
 
         PersonData person = personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
@@ -322,7 +322,7 @@ public class PersonDataController {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private JsonArray buildPatchArray(List<JsonPatchOperation> ops) {
+    private JsonArray buildPatchArray(List<JsonPatchSchema> ops) {
 
         JsonNode node = objectMapper.valueToTree(ops); // converts List → JSON tree
 
@@ -330,7 +330,7 @@ public class PersonDataController {
         return reader.readArray();
     }
 
-    private PersonView applyPatchToPerson(List<JsonPatchOperation> patch, PersonView targetPerson) throws JsonProcessingException {
+    private PersonView applyPatchToPerson(List<JsonPatchSchema> patch, PersonView targetPerson) throws JsonProcessingException {
         JsonPatch jsonPatch = Json.createPatch(buildPatchArray(patch));
         JsonObject personNode = objectMapper.convertValue(targetPerson, JsonObject.class);
         JsonObject patchedPerson = jsonPatch.apply(personNode);
