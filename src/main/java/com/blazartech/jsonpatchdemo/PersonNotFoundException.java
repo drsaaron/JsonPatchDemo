@@ -9,5 +9,9 @@ package com.blazartech.jsonpatchdemo;
  * @author aar1069
  */
 public class PersonNotFoundException extends RuntimeException {
+
+    public PersonNotFoundException(String message) {
+        super(message);
+    }
     
 }

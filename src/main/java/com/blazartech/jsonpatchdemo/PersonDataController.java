@@ -187,12 +187,16 @@ public class PersonDataController {
         @ApiResponse(responseCode = "200", description = "got person",
                 content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = PersonView.class))
+                }),
+        @ApiResponse(responseCode = "404", description = "not found",
+                content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))
                 })
     })
     public PersonView getPerson(@PathVariable long id) {
         log.info("getting person by ID {}", id);
 
-        PersonData person = personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
+        PersonData person = personRepository.findById(id).orElseThrow(() -> new PersonNotFoundException("person " + id + " not found"));
         return buildPersonView(person);
     }
 
@@ -268,12 +272,16 @@ public class PersonDataController {
         @ApiResponse(responseCode = "200", description = "successfully updated person",
                 content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = PersonView.class))
+                }),
+        @ApiResponse(responseCode = "404", description = "not found",
+                content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))
                 })
     })
     public PersonView putPerson(@PathVariable long id, @RequestBody PersonView updatedPerson) {
         log.info("updating person {} via PUT", id);
 
-        PersonData p = personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
+        PersonData p = personRepository.findById(id).orElseThrow(() -> new PersonNotFoundException("person " + id + " not found"));
         List<RoleData> newRoles = updatedPerson.getRoles().stream()
                 .map(r -> buildRoleData(r))
                 .collect(Collectors.toList());
@@ -298,6 +306,10 @@ public class PersonDataController {
         @ApiResponse(responseCode = "200", description = "successfully updated person",
                 content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = PersonView.class))
+                }),
+        @ApiResponse(responseCode = "404", description = "not found",
+                content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))
                 })
     })
 //    @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonPatchSchema.class))))
@@ -305,7 +317,7 @@ public class PersonDataController {
     public PersonView patchPerson(@Parameter(description = "id of the object to be patched") @PathVariable long id, @Parameter(description = "the patches") @RequestBody List<JsonPatchSchema> jsonPatch) throws JsonProcessingException {
         log.info("updating person {} by patch", id);
 
-        PersonData person = personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
+        PersonData person = personRepository.findById(id).orElseThrow(() -> new PersonNotFoundException("person " + id + " not found"));
 
         PersonView personView = buildPersonView(person);
 

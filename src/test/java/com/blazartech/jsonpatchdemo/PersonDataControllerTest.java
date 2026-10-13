@@ -15,6 +15,7 @@ import com.blazartech.jsonpatchdemo.response.RoleView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.servlet.ServletException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -231,6 +232,17 @@ public class PersonDataControllerTest {
         PersonView origPerson = objectMapper.readValue(response, PersonView.class);
 
         return origPerson;
+    }
+    
+    @Test
+    public void testGetPerson_notFound() throws Exception {
+        log.info("testGetPerson_notFound");
+        
+        long personId = 20000;
+        
+        Exception e = assertThrows(ServletException.class, () -> getPerson(personId));
+        Throwable causedBy = e.getCause();
+        assertTrue(causedBy instanceof PersonNotFoundException);
     }
 
     /**
