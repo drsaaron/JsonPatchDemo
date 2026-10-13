@@ -15,7 +15,6 @@ import com.blazartech.jsonpatchdemo.response.RoleView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.servlet.ServletException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -33,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.MediaType;
@@ -51,6 +51,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -61,6 +62,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @ExtendWith(SpringExtension.class)
 @Slf4j
 @WebMvcTest(PersonDataController.class)
+@Import(PersonNotFoundExceptionHandler.class)  
 @ContextConfiguration(classes = {
     PersonDataControllerTest.PersonDataControllerTestConfiguration.class,
     DataSourceConfiguration.class
@@ -240,9 +242,15 @@ public class PersonDataControllerTest {
         
         long personId = 20000;
         
-        Exception e = assertThrows(ServletException.class, () -> getPerson(personId));
-        Throwable causedBy = e.getCause();
-        assertTrue(causedBy instanceof PersonNotFoundException);
+        // make the call, which should return a 404 and an error object.
+        mockMvc
+                .perform(get("/person/" + personId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("person " + personId + " not found"))
+                .andReturn();
+        
+        
     }
 
     /**
