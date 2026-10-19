@@ -93,7 +93,7 @@ public class PersonDataController {
     private RoleData buildRoleData(RoleView v) {
         RoleData d = new RoleData();
         d.setEndDate(v.getEndDate());
-        d.setPerson(personRepository.findById(v.getPersonId()).orElseThrow());
+        d.setPerson(findPersonById(v.getPersonId()));
         d.setRoleId(v.getId());
         d.setRoleType(v.getRoleType());
         d.setStartDate(v.getStartDate());
@@ -196,7 +196,7 @@ public class PersonDataController {
     public PersonView getPerson(@PathVariable long id) {
         log.info("getting person by ID {}", id);
 
-        PersonData person = personRepository.findById(id).orElseThrow(() -> new PersonNotFoundException("person " + id + " not found"));
+        PersonData person = findPersonById(id);
         return buildPersonView(person);
     }
 
@@ -256,7 +256,7 @@ public class PersonDataController {
         r.setRoleType(newRole.getRoleType());
         r.setStartDate(newRole.getStartDate());
 
-        PersonData person = personRepository.findById(newRole.getPersonId()).orElseThrow(IllegalArgumentException::new);
+        PersonData person = findPersonById(newRole.getPersonId());
 
         r.setPerson(person);
 
@@ -264,6 +264,10 @@ public class PersonDataController {
 
         newRole.setId(r.getRoleId());
         return newRole;
+    }
+    
+    public PersonData findPersonById(long id) {
+        return personRepository.findById(id).orElseThrow(() -> new PersonNotFoundException("person " + id + " not found"));
     }
 
     @PutMapping(path = "/person/{id}")
@@ -281,7 +285,7 @@ public class PersonDataController {
     public PersonView putPerson(@PathVariable long id, @RequestBody PersonView updatedPerson) {
         log.info("updating person {} via PUT", id);
 
-        PersonData p = personRepository.findById(id).orElseThrow(() -> new PersonNotFoundException("person " + id + " not found"));
+        PersonData p = findPersonById(id);
         List<RoleData> newRoles = updatedPerson.getRoles().stream()
                 .map(r -> buildRoleData(r))
                 .collect(Collectors.toList());
@@ -317,7 +321,7 @@ public class PersonDataController {
     public PersonView patchPerson(@Parameter(description = "id of the object to be patched") @PathVariable long id, @Parameter(description = "the patches") @RequestBody List<JsonPatchSchema> jsonPatch) throws JsonProcessingException {
         log.info("updating person {} by patch", id);
 
-        PersonData person = personRepository.findById(id).orElseThrow(() -> new PersonNotFoundException("person " + id + " not found"));
+        PersonData person = findPersonById(id);
 
         PersonView personView = buildPersonView(person);
 
