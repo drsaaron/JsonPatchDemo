@@ -12,8 +12,6 @@ import com.blazartech.jsonpatchdemo.data.RoleData;
 import com.blazartech.jsonpatchdemo.response.AddressView;
 import com.blazartech.jsonpatchdemo.response.PersonView;
 import com.blazartech.jsonpatchdemo.response.RoleView;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
@@ -54,6 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.transaction.PlatformTransactionManager;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  *
@@ -113,7 +112,6 @@ public class PersonDataControllerTest {
         @Bean
         public ObjectMapper objectMapper() {
             ObjectMapper om = new ObjectMapper();
-            om.registerModule(new JavaTimeModule());
             return om;
         }
     }
