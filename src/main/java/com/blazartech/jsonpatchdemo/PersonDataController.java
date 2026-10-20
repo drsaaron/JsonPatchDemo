@@ -139,7 +139,7 @@ public class PersonDataController {
         if (d.getRoles() != null) {
             List<RoleView> roles = d.getRoles()
                     .stream()
-                    .map(r -> buildRoleView(r))
+                    .map(this::buildRoleView)
                     .collect(Collectors.toList());
             v.setRoles(roles);
         }
@@ -157,7 +157,7 @@ public class PersonDataController {
 
         if (v.getRoles() != null) {
             List<RoleData> roles = v.getRoles().stream()
-                    .map(r -> buildRoleData(r))
+                    .map(this::buildRoleData)
                     .collect(Collectors.toList());
 
             d.setRoles(roles);
@@ -176,7 +176,7 @@ public class PersonDataController {
     })
     public List<PersonView> getPersons() {
         return personRepository.findAll().stream()
-                .map(p -> buildPersonView(p))
+                .map(this::buildPersonView)
                 .collect(Collectors.toList());
     }
 
@@ -233,7 +233,7 @@ public class PersonDataController {
 
         return roleRepository.findAll()
                 .stream()
-                .map(r -> buildRoleView(r))
+                .map(this::buildRoleView)
                 .collect(Collectors.toList());
     }
 
@@ -286,7 +286,7 @@ public class PersonDataController {
 
         PersonData p = findPersonById(id);
         List<RoleData> newRoles = updatedPerson.getRoles().stream()
-                .map(r -> buildRoleData(r))
+                .map(this::buildRoleData)
                 .collect(Collectors.toList());
         p.setRoles(newRoles);
 
