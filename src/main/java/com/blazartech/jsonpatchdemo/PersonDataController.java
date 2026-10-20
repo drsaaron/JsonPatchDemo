@@ -12,7 +12,6 @@ import com.blazartech.jsonpatchdemo.data.RoleDataRepository;
 import com.blazartech.jsonpatchdemo.response.AddressView;
 import com.blazartech.jsonpatchdemo.response.PersonView;
 import com.blazartech.jsonpatchdemo.response.RoleView;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -302,7 +301,6 @@ public class PersonDataController {
      * @param id ID of the object to be patched
      * @param jsonPatch the patches
      * @return patched object
-     * @throws JsonProcessingException
      */
     @PatchMapping(path = "/person/{id}", consumes = "application/json-patch+json")
     @Operation(summary = "patch update a person")
@@ -318,7 +316,7 @@ public class PersonDataController {
     })
 //    @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonPatchSchema.class))))
     @Transactional
-    public PersonView patchPerson(@Parameter(description = "id of the object to be patched") @PathVariable long id, @Parameter(description = "the patches") @RequestBody List<JsonPatchSchema> jsonPatch) throws JsonProcessingException {
+    public PersonView patchPerson(@Parameter(description = "id of the object to be patched") @PathVariable long id, @Parameter(description = "the patches") @RequestBody List<JsonPatchSchema> jsonPatch) {
         log.info("updating person {} by patch", id);
 
         PersonData person = findPersonById(id);
@@ -345,7 +343,7 @@ public class PersonDataController {
         return reader.readArray();
     }
 
-    private PersonView applyPatchToPerson(List<JsonPatchSchema> patch, PersonView targetPerson) throws JsonProcessingException {
+    private PersonView applyPatchToPerson(List<JsonPatchSchema> patch, PersonView targetPerson) {
         JsonPatch jsonPatch = Json.createPatch(buildPatchArray(patch));
         JsonObject personNode = objectMapper.convertValue(targetPerson, JsonObject.class);
         JsonObject patchedPerson = jsonPatch.apply(personNode);
